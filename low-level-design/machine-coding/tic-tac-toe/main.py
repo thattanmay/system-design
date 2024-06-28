@@ -4,11 +4,16 @@ class Player:
         self.row = None
         self.col = None
 
-    def get_move(self):
+    def get_move(self, msg):
         player_input = list(
-            map(int, input(f"Player {self.name}, please make your move: ").split())
+            map(
+                int,
+                input(msg).split(),
+            )
         )
         self.row, self.col = player_input
+        self.row -= 1
+        self.col -= 1
 
 
 class Board:
@@ -71,20 +76,31 @@ class Game:
             player = self.players[self.turn % self.no_of_players]
             piece = self.pieces[self.turn % self.no_of_players]
 
-            player.get_move()
+            # get valid move
+            player.get_move(
+                f"Player {player.name}, please make your move('{piece}') (row, col): "
+            )
             while not self.board.is_valid_move(player):
-                print("\nInvalid move, please try again.")
-                player.get_move()
+                player.get_move("Invalid move, please try again: ")
+
+            # make move
             self.board.make_move(player, piece)
             self.board.display()
+
+            # check for winner
             if self.board.check_winner(piece):
                 print(f"Player {player.name} wins!")
                 break
 
             self.turn += 1
-            if self.turn >= self.max_turns:
+            # check for draw
+            if self.turn == self.max_turns:
                 print("It's a draw!")
                 break
 
 
-Game(2, 3).start()
+if __name__ == "__main__":
+    no_of_players = int(input("Please enter number of players: "))
+    board_size = int(input("Enter square board side length: "))
+    game = Game(no_of_players, board_size)
+    game.start()
